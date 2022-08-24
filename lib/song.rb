@@ -49,4 +49,27 @@ class Song
     song.save
   end
 
+  def self.new_from_db(row)
+    self.new(id:row[0],name:row[1],album:row[2])#equivalent to Song.new -- remember this creating instances of objects and giving them the necessary arguments.
+  end
+
+  def self.all
+    sql = <<-SQL
+     SELECT * FROM songs
+    SQL
+
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
+    end
+  end
+
+  def self.find_by_name(name)
+    sql = <<-SQL
+    SELECT * FROM songs WHERE name = ? LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql,name).map do |row|
+      self.new_from_db(row)
+    end.first  # this is method chaining for ruby where since map returns an array, we chain on first to return just the first element of the array.
+  end
 end
